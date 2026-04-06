@@ -6,6 +6,12 @@ document.addEventListener("DOMContentLoaded", () => {
   emailLink.href = `mailto:${siteConfig.email}`;
 });
 
+// Transformation Cloudinary à la livraison
+function cloudinaryUrl(url, options = "") {
+  if (!url || !url.includes("cloudinary.com")) return url;
+  return url.replace("/upload/", `/upload/${options}/`);
+}
+
 // Chargement des créations depuis Firestore
 async function chargerCreations(categorie = "all") {
   const galerie = document.getElementById("galerie");
@@ -28,7 +34,7 @@ async function chargerCreations(categorie = "all") {
 
     snapshot.forEach(doc => {
       const c = doc.data();
-      const photo = c.photos?.[0] ?? "css/placeholder.jpg";
+      const photo = cloudinaryUrl(c.photos?.[0], "w_400,h_300,c_fill,q_auto,f_auto");
       galerie.innerHTML += `
         <div class="col">
           <a href="creation.html?id=${doc.id}" class="text-decoration-none text-dark">

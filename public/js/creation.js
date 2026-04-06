@@ -6,6 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
   emailLink.href = `mailto:${siteConfig.email}`;
 });
 
+function cloudinaryUrl(url, options = "") {
+  if (!url || !url.includes("cloudinary.com")) return url;
+  return url.replace("/upload/", `/upload/${options}/`);
+}
+
 // Récupérer l'id dans l'URL
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
@@ -26,6 +31,18 @@ async function chargerCreation() {
     }
 
     const c = doc.data();
+
+    // Récupérer le nom de la catégorie
+    let nomCategorie = c.categorie ?? "";
+    if (c.categorie) {
+      const catSnapshot = await db.collection("categories")
+        .where("slug", "==", c.categorie)
+        .get();
+      if (!catSnapshot.empty) {
+        nomCategorie = catSnapshot.docs[0].data().nom;
+      }
+    }
+
     const photos = c.photos ?? [];
 
     contenu.innerHTML = `
@@ -37,7 +54,7 @@ async function chargerCreation() {
               <div class="carousel-inner">
                 ${photos.map((p, i) => `
                   <div class="carousel-item ${i === 0 ? "active" : ""}">
-                    <img src="${p}" class="d-block w-100 rounded" style="max-height:450px; object-fit:cover;">
+                    <img src="${cloudinaryUrl(p, "w_800,h_600,c_fit,q_auto,f_auto")}" class="d-block w-100 rounded" style="max-height:450px; object-fit:contain;">
                   </div>
                 `).join("")}
               </div>
@@ -49,14 +66,14 @@ async function chargerCreation() {
               </button>
             </div>
           ` : photos.length === 1 ? `
-            <img src="${photos[0]}" class="img-fluid rounded mb-3" style="max-height:450px; object-fit:cover;">
+            <img src="${cloudinaryUrl(photos[0], "w_800,h_600,c_fit,q_auto,f_auto")}" class="img-fluid rounded mb-3" style="max-height:450px; object-fit:contain;">
           ` : `
             <p class="text-muted">Pas de photo disponible.</p>
           `}
         </div>
         <div class="col-md-5">
           <h2>${c.nom}</h2>
-          <p class="text-muted">${c.categorie ?? ""}</p>
+          <p class="text-muted">${nomCategorie}</p>
           <p>${c.description ?? ""}</p>
           <p class="fs-4 fw-bold">${c.prix ? c.prix + " €" : ""}</p>
           <a href="mailto:${siteConfig.email}" class="btn btn-dark">Contacter Manon</a>

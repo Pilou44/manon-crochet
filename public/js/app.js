@@ -1,0 +1,72 @@
+// Chargement des créations depuis Firestore
+async function chargerCreations(categorie = "all") {
+  const galerie = document.getElementById("galerie");
+  galerie.innerHTML = "<p class='text-muted'>Chargement...</p>";
+
+  try {
+    let query = db.collection("creations").where("visible", "==", true);
+    
+    if (categorie !== "all") {
+      query = query.where("categorie", "==", categorie);
+    }
+
+    const snapshot = await query.get();
+    galerie.innerHTML = "";
+
+    if (snapshot.empty) {
+      galerie.innerHTML = "<p class='text-muted'>Aucune création pour le moment.</p>";
+      return;
+    }
+
+    snapshot.forEach(doc => {
+      const c = doc.data();
+      const photo = c.photos?.[0] ?? "css/placeholder.jpg";
+      galerie.innerHTML += `
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <img src="${photo}" class="card-img-top" alt="${c.nom}" style="height:200px; object-fit:cover;">
+            <div class="card-body">
+              <h5 class="card-title">${c.nom}</h5>
+              <p class="card-text text-muted">${c.description ?? ""}</p>
+              <p class="card-text fw-bold">${c.prix ? c.prix + " €" : ""}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+  } catch (err) {
+    galerie.innerHTML = "<p class='text-danger'>Erreur de chargement.</p>";
+    console.error(err);
+  }
+}
+
+// Chargement des catégories
+async function chargerCategories() {
+  const filtres = document.getElementById("filtres");
+
+  try {
+    const snapshot = await db.collection("categories").get();
+    snapshot.forEach(doc => {
+      const c = doc.data();
+      filtres.innerHTML += `
+        <button class="btn btn-outline-secondary btn-sm" data-categorie="${c.slug}">${c.nom}</button>
+      `;
+    });
+  } catch (err) {
+    console.error(err);
+  }
+
+  // Gestion des clics sur les filtres
+  filtres.addEventListener("click", e => {
+    if (e.target.tagName === "BUTTON") {
+      document.querySelectorAll("#filtres button").forEach(b => b.classList.remove("actif"));
+      e.target.classList.add("actif");
+      chargerCreations(e.target.dataset.categorie);
+    }
+  });
+}
+
+// Lancement
+chargerCategories();
+chargerCreations();

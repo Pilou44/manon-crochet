@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Manon Crochet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-light bg-white shadow-sm px-4">
+    <span class="navbar-brand fw-bold">🧶 Administration</span>
+    <button id="btnDeconnexion" class="btn btn-outline-secondary btn-sm">Se déconnecter</button>
+  </nav>
+
+  <main class="container my-4">
+
+    <!-- Bouton ajout -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="mb-0">Mes créations</h5>
+      <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalCreation">
+        + Ajouter une création
+      </button>
+    </div>
+
+    <!-- Liste des créations -->
+    <div id="listeCreations">
+      <p class="text-muted">Chargement...</p>
+    </div>
+
+  </main>
+
+  <!-- Modal ajout/modification -->
+  <div class="modal fade" id="modalCreation" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Nouvelle création</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="creationId">
+          <div class="mb-3">
+            <label class="form-label">Nom</label>
+            <input type="text" id="nom" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea id="description" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Prix (€)</label>
+            <input type="number" id="prix" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Catégorie</label>
+            <select id="categorie" class="form-select">
+              <option value="">-- Choisir --</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Photos</label>
+            <input type="file" id="photos" class="form-control" multiple accept="image/*">
+          </div>
+          <div class="mb-3 form-check">
+            <input type="checkbox" id="visible" class="form-check-input" checked>
+            <label class="form-check-label">Visible sur le site</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" id="btnSauvegarder" class="btn btn-dark">Sauvegarder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

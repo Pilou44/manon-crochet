@@ -18,6 +18,11 @@ auth.onAuthStateChanged(user => {
     chargerCategories();
     chargerCreations();
   }
+  if (user && window.location.pathname.includes("dashboard")) {
+    chargerCategories();
+    chargerCreations();
+    chargerListeCategories();
+  }
 });
 
 // Déconnexion
@@ -202,3 +207,90 @@ document.getElementById("modalCreation").addEventListener("show.bs.modal", e => 
     document.querySelector("#modalCreation .modal-title").textContent = "Nouvelle création";
   }
 });
+
+// Charger la liste des catégories dans le dashboard
+async function chargerListeCategories() {
+  const liste = document.getElementById("listeCategories");
+  if (!liste) return;
+
+  const snapshot = await db.collection("categories").orderBy("nom").get();
+
+  if (snapshot.empty) {
+    liste.innerHTML = "<p class='text-muted'>Aucune catégorie pour le moment.</p>";
+    return;
+  }
+
+  liste.innerHTML = "";
+  snapshot.forEach(doc => {
+    const c = doc.data();
+    liste.innerHTML += `
+      <div class="card mb-2 shadow-sm">
+        <div class="row g-0 align-items-center">
+          <div class="col-md-10">
+            <div class="card-body py-2">
+              <span class="fw-bold">${c.nom}</span>
+              <small class="text-muted ms-2">${c.slug}</small>
+            </div>
+          </div>
+          <div class="col-md-2 text-center">
+            <button class="btn btn-sm btn-outline-danger" onclick="supprimerCategorie('${doc.id}')">Supprimer</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// Sauvegarder une catégorie
+const btnSauvegarderCategorie = document.getElementById("btnSauvegarderCategorie");
+if (btnSauvegarderCategorie) {
+  btnSauvegarderCategorie.addEventListener("click", async () => {
+    const nom = document.getElementById("categorieNom").value.trim();
+    const slug = document.getElementById("categorieSlug").value.trim();
+
+    if (!nom || !slug) {
+      alert("Merci de remplir le nom et le slug.");
+      return;
+    }
+
+    try {
+      const existant = await db.collection("categories").where("slug", "==", slug).get();
+      if (!existant.empty) {
+        alert("Une catégorie avec ce nom existe déjà.");
+        return;
+      }
+      await db.collection("categories").add({ nom, slug });
+      bootstrap.Modal.getInstance(document.getElementById("modalCategorie")).hide();
+      document.getElementById("categorieNom").value = "";
+      document.getElementById("categorieSlug").value = "";
+      chargerListeCategories();
+      chargerCategories();
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la sauvegarde.");
+    }
+  });
+}
+
+// Supprimer une catégorie
+async function supprimerCategorie(id) {
+  if (!confirm("Supprimer cette catégorie ?")) return;
+  await db.collection("categories").doc(id).delete();
+  chargerListeCategories();
+  chargerCategories();
+}
+
+// Génération automatique du slug depuis le nom
+const categorieNomInput = document.getElementById("categorieNom");
+if (categorieNomInput) {
+  categorieNomInput.addEventListener("input", e => {
+    const slug = e.target.value
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    document.getElementById("categorieSlug").value = slug;
+  });
+}
+

@@ -28,6 +28,44 @@
       <p class="text-muted">Chargement...</p>
     </div>
 
+    <!-- Gestion des catégories -->
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
+      <h5 class="mb-0">Catégories</h5>
+      <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalCategorie">
+        + Ajouter une catégorie
+      </button>
+    </div>
+
+    <div id="listeCategories">
+      <p class="text-muted">Chargement...</p>
+    </div>
+
+    <!-- Modal catégorie -->
+    <div class="modal fade" id="modalCategorie" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Nouvelle catégorie</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Nom</label>
+              <input type="text" id="categorieNom" class="form-control">
+            </div>
+            <div class="mb-3 d-none">
+              <label class="form-label">Slug</label>
+              <input type="text" id="categorieSlug" class="form-control">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button type="button" id="btnSauvegarderCategorie" class="btn btn-dark">Sauvegarder</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- Modal ajout/modification -->

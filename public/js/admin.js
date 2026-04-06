@@ -1,3 +1,9 @@
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("siteNom")) {
+    document.getElementById("siteNom").textContent = siteConfig.nom;
+  }
+});
+
 const auth = firebase.auth();
 
 // Redirection selon état de connexion

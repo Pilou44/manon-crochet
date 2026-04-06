@@ -15,3 +15,8 @@ const cloudinaryConfig = {
   cloudName: "CLOUDINARY_CLOUD_NAME",
   uploadPreset: "CLOUDINARY_UPLOAD_PRESET"
 };
+
+const siteConfig = {
+  email: "CONTACT_EMAIL",
+  nom: "SITE_NAME"
+};

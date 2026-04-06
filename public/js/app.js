@@ -1,3 +1,11 @@
+// Infos du site
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("siteNom").textContent = siteConfig.nom;
+  const emailLink = document.getElementById("emailContact");
+  emailLink.textContent = siteConfig.email;
+  emailLink.href = `mailto:${siteConfig.email}`;
+});
+
 // Chargement des créations depuis Firestore
 async function chargerCreations(categorie = "all") {
   const galerie = document.getElementById("galerie");
@@ -23,14 +31,16 @@ async function chargerCreations(categorie = "all") {
       const photo = c.photos?.[0] ?? "css/placeholder.jpg";
       galerie.innerHTML += `
         <div class="col">
-          <div class="card h-100 shadow-sm">
-            <img src="${photo}" class="card-img-top" alt="${c.nom}" style="height:200px; object-fit:cover;">
-            <div class="card-body">
-              <h5 class="card-title">${c.nom}</h5>
-              <p class="card-text text-muted">${c.description ?? ""}</p>
-              <p class="card-text fw-bold">${c.prix ? c.prix + " €" : ""}</p>
+          <a href="creation.html?id=${doc.id}" class="text-decoration-none text-dark">
+            <div class="card h-100 shadow-sm">
+              <img src="${photo}" class="card-img-top" alt="${c.nom}" style="height:200px; object-fit:cover;">
+              <div class="card-body">
+                <h5 class="card-title">${c.nom}</h5>
+                <p class="card-text text-muted">${c.description ?? ""}</p>
+                <p class="card-text fw-bold">${c.prix ? c.prix + " €" : ""}</p>
+              </div>
             </div>
-          </div>
+          </a>
         </div>
       `;
     });

@@ -182,3 +182,17 @@ if (btnLogin) {
   });
 }
 
+// Réinitialisation du formulaire à l'ouverture
+document.getElementById("modalCreation").addEventListener("show.bs.modal", e => {
+  if (e.relatedTarget) {
+    // Ouvert via le bouton Ajouter
+    document.getElementById("creationId").value = "";
+    document.getElementById("nom").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("prix").value = "";
+    document.getElementById("categorie").value = "";
+    document.getElementById("photos").value = "";
+    document.getElementById("visible").checked = true;
+    document.querySelector("#modalCreation .modal-title").textContent = "Nouvelle création";
+  }
+});

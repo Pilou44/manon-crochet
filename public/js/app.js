@@ -1,3 +1,10 @@
+// Sécurité : remplace les `<` par `&lt;`, etc
+function sanitize(str) {
+  const div = document.createElement("div");
+  div.textContent = str ?? "";
+  return div.innerHTML;
+}
+
 // Set title
 document.title = siteConfig.nom;
 
@@ -47,8 +54,8 @@ async function chargerCreations(categorie = "all") {
             <div class="card h-100 shadow-sm">
               ${photoHtml}
               <div class="card-body">
-                <h5 class="card-title">${c.nom}</h5>
-                <p class="card-text text-muted">${c.description ?? ""}</p>
+                <h5 class="card-title">${sanitize(c.nom)}</h5>
+                <p class="card-text text-muted">${sanitize(c.description ?? "")}</p>
                 <p class="card-text fw-bold">${c.prix ? c.prix + " €" : ""}</p>
               </div>
             </div>

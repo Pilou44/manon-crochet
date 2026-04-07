@@ -1,3 +1,10 @@
+// Sécurité : remplace les `<` par `&lt;`, etc
+function sanitize(str) {
+  const div = document.createElement("div");
+  div.textContent = str ?? "";
+  return div.innerHTML;
+}
+
 // Set page title
 if (window.location.pathname.includes("dashboard")) {
   document.title = `Dashboard - ${siteConfig.nom}`;
@@ -93,8 +100,8 @@ async function chargerCreations() {
           </div>
           <div class="col-md-8">
             <div class="card-body py-2">
-              <h6 class="card-title mb-1">${c.nom}</h6>
-              <small class="text-muted">${nomCategorie} — ${c.prix ? c.prix + " €" : "Prix non renseigné"}</small>
+              <h6 class="card-title mb-1">${sanitize(c.nom)}</h6>
+              <small class="text-muted">${sanitize(nomCategorie)} — ${c.prix ? c.prix + " €" : "Prix non renseigné"}</small>
               <br>
               <small class="${c.visible ? "text-success" : "text-danger"}">${c.visible ? "Visible" : "Masqué"}</small>
             </div>
@@ -264,8 +271,8 @@ async function chargerListeCategories() {
         <div class="row g-0 align-items-center">
           <div class="col-md-10">
             <div class="card-body py-2">
-              <span class="fw-bold">${c.nom}</span>
-              <small class="text-muted ms-2">${c.slug}</small>
+              <span class="fw-bold">${sanitize(c.nom)}</span>
+              <small class="text-muted ms-2">${sanitize(c.slug)}</small>
             </div>
           </div>
           <div class="col-md-2 text-center">

@@ -1,3 +1,10 @@
+// Sécurité : remplace les `<` par `&lt;`, etc
+function sanitize(str) {
+  const div = document.createElement("div");
+  div.textContent = str ?? "";
+  return div.innerHTML;
+}
+
 // Infos du site
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("siteNom").textContent = siteConfig.nom;
@@ -78,16 +85,16 @@ async function chargerCreation() {
           `}
         </div>
         <div class="col-md-5">
-          <h2>${c.nom}</h2>
-          <p class="text-muted">${nomCategorie}</p>
-          <p>${c.description ?? ""}</p>
-          <p class="fs-4 fw-bold">${c.prix ? c.prix + " €" : ""}</p>
+          <h2>${sanitize(c.nom)}</h2>
+          <p class="text-muted">${sanitize(nomCategorie)}</p>
+          <p>${sanitize(c.description ?? "")}</p>
+          <p class="fs-4 fw-bold">${c.prix ? sanitize(c.prix + " €") : ""}</p>
         </div>
       </div>
     `;
 
     // Titre de la page
-    document.title = `${c.nom} - ${siteConfig.nom}`;
+    document.title = `${sanitize(c.nom)} - ${siteConfig.nom}`;
 
   } catch (err) {
     console.error(err);

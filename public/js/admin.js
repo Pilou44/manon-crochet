@@ -1,3 +1,10 @@
+// Set page title
+if (window.location.pathname.includes("dashboard")) {
+  document.title = `Dashboard - ${siteConfig.nom}`;
+} else {
+  document.title = `Admin - ${siteConfig.nom}`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("siteNom")) {
     document.getElementById("siteNom").textContent = siteConfig.nom;

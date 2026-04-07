@@ -1,3 +1,6 @@
+// Set title
+document.title = siteConfig.nom;
+
 // Infos du site
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("siteNom").textContent = siteConfig.nom;

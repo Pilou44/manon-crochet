@@ -88,7 +88,7 @@ async function chargerCreation() {
     `;
 
     // Titre de la page
-    document.title = `${c.nom} — Manon Crochet`;
+    document.title = `${c.nom} - ${siteConfig.nom}`;
 
   } catch (err) {
     console.error(err);

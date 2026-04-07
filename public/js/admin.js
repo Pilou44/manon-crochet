@@ -65,6 +65,13 @@ async function chargerCreations() {
   const liste = document.getElementById("listeCreations");
   if (!liste) return;
 
+  // Charger les catégories pour faire la correspondance slug → nom
+  const categoriesSnapshot = await db.collection("categories").get();
+  const categories = {};
+  categoriesSnapshot.forEach(doc => {
+    categories[doc.data().slug] = doc.data().nom;
+  });
+
   const snapshot = await db.collection("creations").orderBy("dateAjout", "desc").get();
   
   if (snapshot.empty) {
@@ -75,6 +82,7 @@ async function chargerCreations() {
   liste.innerHTML = "";
   snapshot.forEach(doc => {
     const c = doc.data();
+    const nomCategorie = categories[c.categorie] ?? c.categorie; // fallback sur le slug si introuvable
     const indexPrincipal = c.photoPrincipale ?? 0;
     const photo = c.photos?.[indexPrincipal] ?? "";
     liste.innerHTML += `
@@ -86,7 +94,7 @@ async function chargerCreations() {
           <div class="col-md-8">
             <div class="card-body py-2">
               <h6 class="card-title mb-1">${c.nom}</h6>
-              <small class="text-muted">${c.categorie} — ${c.prix ? c.prix + " €" : "Prix non renseigné"}</small>
+              <small class="text-muted">${nomCategorie} — ${c.prix ? c.prix + " €" : "Prix non renseigné"}</small>
               <br>
               <small class="${c.visible ? "text-success" : "text-danger"}">${c.visible ? "Visible" : "Masqué"}</small>
             </div>
@@ -148,12 +156,12 @@ if (btnSauvegarder) {
         visible: document.getElementById("visible").checked,
         photos: toutesPhotos,
         photoPrincipale: photoPrincipale,
-        dateAjout: firebase.firestore.FieldValue.serverTimestamp()
       };
 
       if (id) {
         await db.collection("creations").doc(id).update(creation);
       } else {
+        creation.dateAjout = firebase.firestore.FieldValue.serverTimestamp();
         await db.collection("creations").add(creation);
       }
 

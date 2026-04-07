@@ -34,8 +34,9 @@ async function chargerCreations(categorie = "all") {
 
     snapshot.forEach(doc => {
       const c = doc.data();
-      const photoHtml = c.photos?.[0]
-        ? `<img src="${cloudinaryUrl(c.photos[0], "w_400,h_300,c_fill,q_auto,f_auto")}" class="card-img-top" alt="${c.nom}" style="height:200px; object-fit:cover;">`
+      const indexPrincipal = c.photoPrincipale ?? 0;
+      const photoHtml = c.photos?.[indexPrincipal]
+        ? `<img src="${cloudinaryUrl(c.photos[indexPrincipal], "w_400,h_300,c_fill,q_auto,f_auto")}" class="card-img-top" alt="${c.nom}" style="height:200px; object-fit:cover;">`
         : `<div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height:200px;">Pas de photo</div>`;
       galerie.innerHTML += `
         <div class="col">

@@ -78,6 +78,8 @@
         </div>
         <div class="modal-body">
           <input type="hidden" id="creationId">
+          <input type="hidden" id="photosData">
+          <input type="hidden" id="photoPrincipale" value="0">
           <div class="mb-3">
             <label class="form-label">Nom</label>
             <input type="text" id="nom" class="form-control">
@@ -95,6 +97,10 @@
             <select id="categorie" class="form-select">
               <option value="">-- Choisir --</option>
             </select>
+          </div>
+          <div class="mb-3" id="photosExistantes" style="display:none;">
+            <label class="form-label">Photos existantes <small class="text-muted">(cliquer pour choisir la photo principale)</small></label>
+            <div id="miniatures" class="d-flex flex-wrap gap-2"></div>
           </div>
           <div class="mb-3">
             <label class="form-label">Photos</label>

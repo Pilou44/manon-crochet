@@ -44,6 +44,12 @@ async function chargerCreation() {
     }
 
     const photos = c.photos ?? [];
+    const indexPrincipal = c.photoPrincipale ?? 0;
+    // Mettre la photo principale en premier dans le carousel
+    if (photos.length > 1 && indexPrincipal > 0) {
+      const principale = photos.splice(indexPrincipal, 1)[0];
+      photos.unshift(principale);
+    }
 
     contenu.innerHTML = `
       <div class="row">

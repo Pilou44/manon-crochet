@@ -4,6 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+// Transformation Cloudinary à la livraison
+function cloudinaryUrl(url, options = "") {
+  if (!url || !url.includes("cloudinary.com")) return url;
+  return url.replace("/upload/", `/upload/${options}/`);
+}
+
 const auth = firebase.auth();
 
 // Redirection selon état de connexion
@@ -112,12 +118,19 @@ if (btnSauvegarder) {
       const id = document.getElementById("creationId").value;
       const fichiers = document.getElementById("photos").files;
 
-      // Upload des photos
-      const urls = [];
+      // Photos existantes (après suppressions éventuelles)
+      const photosExistantes = JSON.parse(document.getElementById("photosData").value || "[]");
+
+      // Upload des nouvelles photos
+      const nouvellesUrls = [];
       for (const fichier of fichiers) {
         const url = await uploadPhoto(fichier);
-        urls.push(url);
+        nouvellesUrls.push(url);
       }
+
+      // Fusion photos existantes + nouvelles
+      const toutesPhotos = [...photosExistantes, ...nouvellesUrls];
+      const photoPrincipale = parseInt(document.getElementById("photoPrincipale").value || "0");
 
       const creation = {
         nom: document.getElementById("nom").value,
@@ -125,17 +138,14 @@ if (btnSauvegarder) {
         prix: parseFloat(document.getElementById("prix").value) || 0,
         categorie: document.getElementById("categorie").value,
         visible: document.getElementById("visible").checked,
+        photos: toutesPhotos,
+        photoPrincipale: photoPrincipale,
         dateAjout: firebase.firestore.FieldValue.serverTimestamp()
       };
-
-      if (urls.length > 0) {
-        creation.photos = urls;
-      }
 
       if (id) {
         await db.collection("creations").doc(id).update(creation);
       } else {
-        creation.photos = urls;
         await db.collection("creations").add(creation);
       }
 
@@ -171,6 +181,13 @@ async function editer(id) {
   document.getElementById("categorie").value = c.categorie ?? "";
   document.getElementById("visible").checked = c.visible;
 
+  // Photos existantes
+  const photos = c.photos ?? [];
+  const photoPrincipale = c.photoPrincipale ?? 0;
+  document.getElementById("photosData").value = JSON.stringify(photos);
+  document.getElementById("photoPrincipale").value = photoPrincipale;
+  afficherMiniatures(photos, photoPrincipale);
+
   document.querySelector("#modalCreation .modal-title").textContent = "Modifier la création";
   new bootstrap.Modal(document.getElementById("modalCreation")).show();
 }
@@ -204,6 +221,9 @@ document.getElementById("modalCreation").addEventListener("show.bs.modal", e => 
     document.getElementById("categorie").value = "";
     document.getElementById("photos").value = "";
     document.getElementById("visible").checked = true;
+    document.getElementById("photosData").value = "[]";
+    document.getElementById("photoPrincipale").value = "0";
+    afficherMiniatures([], 0);
     document.querySelector("#modalCreation .modal-title").textContent = "Nouvelle création";
   }
 });
@@ -294,3 +314,56 @@ if (categorieNomInput) {
   });
 }
 
+// Affichage des miniatures
+function afficherMiniatures(photos, photoPrincipale = 0) {
+  const conteneur = document.getElementById("photosExistantes");
+  const miniatures = document.getElementById("miniatures");
+  if (!conteneur || !miniatures) return;
+
+  if (!photos || photos.length === 0) {
+    conteneur.style.display = "none";
+    return;
+  }
+
+  conteneur.style.display = "block";
+  miniatures.innerHTML = "";
+
+  photos.forEach((url, index) => {
+    const div = document.createElement("div");
+    div.style.position = "relative";
+    div.innerHTML = `
+      <img
+        src="${cloudinaryUrl(url, "w_80,h_80,c_fill,q_auto,f_auto")}"
+        style="width:80px; height:80px; object-fit:cover; border-radius:4px; cursor:pointer; border: 3px solid ${index === photoPrincipale ? "#198754" : "#dee2e6"};"
+        onclick="definirPrincipale(${index})"
+      >
+      <button
+        onclick="retirerPhoto(${index})"
+        style="position:absolute; top:-6px; right:-6px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; line-height:1;">✕</button>
+    `;
+    miniatures.appendChild(div);
+  });
+}
+
+function definirPrincipale(index) {
+  // Mettre à jour l'affichage
+  const imgs = document.querySelectorAll("#miniatures img");
+  imgs.forEach((img, i) => {
+    img.style.border = `3px solid ${i === index ? "#198754" : "#dee2e6"}`;
+  });
+  document.getElementById("photoPrincipale").value = index;
+}
+
+function retirerPhoto(index) {
+  // Récupérer les photos actuelles
+  const photosActuelles = JSON.parse(document.getElementById("photosData").value || "[]");
+  photosActuelles.splice(index, 1);
+  document.getElementById("photosData").value = JSON.stringify(photosActuelles);
+
+  // Recalculer la photo principale
+  const principale = parseInt(document.getElementById("photoPrincipale").value || "0");
+  const nouvellePrincipale = principale >= photosActuelles.length ? 0 : principale;
+  document.getElementById("photoPrincipale").value = nouvellePrincipale;
+
+  afficherMiniatures(photosActuelles, nouvellePrincipale);
+}

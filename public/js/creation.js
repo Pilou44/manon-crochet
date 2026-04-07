@@ -82,7 +82,6 @@ async function chargerCreation() {
           <p class="text-muted">${nomCategorie}</p>
           <p>${c.description ?? ""}</p>
           <p class="fs-4 fw-bold">${c.prix ? c.prix + " €" : ""}</p>
-          <a href="mailto:${siteConfig.email}" class="btn btn-dark">Contacter Manon</a>
         </div>
       </div>
     `;

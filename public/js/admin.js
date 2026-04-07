@@ -203,6 +203,8 @@ async function editer(id) {
   document.getElementById("prix").value = c.prix ?? "";
   document.getElementById("categorie").value = c.categorie ?? "";
   document.getElementById("visible").checked = c.visible;
+  document.getElementById("photos").value = "";
+  document.getElementById("nouvellesMiniatures").innerHTML = ""; 
 
   // Photos existantes
   const photos = c.photos ?? [];
@@ -247,6 +249,7 @@ document.getElementById("modalCreation").addEventListener("show.bs.modal", e => 
     document.getElementById("photosData").value = "[]";
     document.getElementById("photoPrincipale").value = "0";
     afficherMiniatures([], 0);
+    document.getElementById("nouvellesMiniatures").innerHTML = "";
     document.querySelector("#modalCreation .modal-title").textContent = "Nouvelle création";
   }
 });
@@ -357,6 +360,7 @@ function afficherMiniatures(photos, photoPrincipale = 0) {
     div.innerHTML = `
       <img
         src="${cloudinaryUrl(url, "w_80,h_80,c_fill,q_auto,f_auto")}"
+        data-index="${index}"
         style="width:80px; height:80px; object-fit:cover; border-radius:4px; cursor:pointer; border: 3px solid ${index === photoPrincipale ? "#198754" : "#dee2e6"};"
         onclick="definirPrincipale(${index})"
       >
@@ -369,10 +373,8 @@ function afficherMiniatures(photos, photoPrincipale = 0) {
 }
 
 function definirPrincipale(index) {
-  // Mettre à jour l'affichage
-  const imgs = document.querySelectorAll("#miniatures img");
-  imgs.forEach((img, i) => {
-    img.style.border = `3px solid ${i === index ? "#198754" : "#dee2e6"}`;
+  document.querySelectorAll("#miniatures img, #nouvellesMiniatures img").forEach((img, i) => {
+    img.style.border = `3px solid ${parseInt(img.dataset.index) === index ? "#198754" : "#dee2e6"}`;
   });
   document.getElementById("photoPrincipale").value = index;
 }
@@ -390,3 +392,42 @@ function retirerPhoto(index) {
 
   afficherMiniatures(photosActuelles, nouvellePrincipale);
 }
+
+// Prévisualisation des nouvelles photos avant upload
+document.getElementById("photos")?.addEventListener("change", async e => {
+  const fichiers = Array.from(e.target.files);
+  const photosExistantes = JSON.parse(document.getElementById("photosData").value || "[]");
+  const offset = photosExistantes.length;
+
+  const conteneur = document.getElementById("nouvellesMiniatures");
+  if (!conteneur) return;
+  conteneur.innerHTML = "";
+
+  const principale = parseInt(document.getElementById("photoPrincipale").value || "0");
+
+  for (let i = 0; i < fichiers.length; i++) {
+    const url = await lireFichier(fichiers[i]);
+    const indexGlobal = offset + i;
+    const div = document.createElement("div");
+    div.style.position = "relative";
+    div.innerHTML = `
+      <img
+        src="${url}"
+        data-index="${indexGlobal}"
+        style="width:80px; height:80px; object-fit:cover; border-radius:4px; cursor:pointer;
+               border: 3px solid ${indexGlobal === principale ? "#198754" : "#dee2e6"};"
+        onclick="definirPrincipale(${indexGlobal})"
+      >
+    `;
+    conteneur.appendChild(div);
+  }
+});
+
+function lireFichier(fichier) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.readAsDataURL(fichier);
+  });
+}
+

@@ -17,10 +17,6 @@ auth.onAuthStateChanged(user => {
   if (user && window.location.pathname.includes("dashboard")) {
     chargerCategories();
     chargerCreations();
-  }
-  if (user && window.location.pathname.includes("dashboard")) {
-    chargerCategories();
-    chargerCreations();
     chargerListeCategories();
   }
 });
@@ -38,6 +34,10 @@ if (btnDeconnexion) {
 async function chargerCategories() {
   const select = document.getElementById("categorie");
   if (!select) return;
+
+  // Vider sauf l'option par défaut
+  select.innerHTML = '<option value="">-- Choisir --</option>';
+
   const snapshot = await db.collection("categories").get();
   snapshot.forEach(doc => {
     const option = document.createElement("option");

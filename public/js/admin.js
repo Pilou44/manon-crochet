@@ -68,12 +68,13 @@ async function chargerCreations() {
   liste.innerHTML = "";
   snapshot.forEach(doc => {
     const c = doc.data();
-    const photo = c.photos?.[0] ?? "";
+    const indexPrincipal = c.photoPrincipale ?? 0;
+    const photo = c.photos?.[indexPrincipal] ?? "";
     liste.innerHTML += `
       <div class="card mb-3 shadow-sm">
         <div class="row g-0 align-items-center">
           <div class="col-md-2 text-center p-2">
-            ${photo ? `<img src="${photo}" class="img-fluid rounded" style="max-height:80px; object-fit:cover;">` : "<span class='text-muted'>Pas de photo</span>"}
+            ${photo ? `<img src="${cloudinaryUrl(photo, "w_80,h_80,c_fill,q_auto,f_auto")}" class="img-fluid rounded" style="max-height:80px; object-fit:cover;">` : "<span class='text-muted'>Pas de photo</span>"}
           </div>
           <div class="col-md-8">
             <div class="card-body py-2">

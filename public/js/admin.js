@@ -1,3 +1,5 @@
+let nouvellesFichiers = [];
+
 // Sécurité : remplace les `<` par `&lt;`, etc
 function sanitize(str) {
   const div = document.createElement("div");
@@ -139,14 +141,12 @@ if (btnSauvegarder) {
 
     try {
       const id = document.getElementById("creationId").value;
-      const fichiers = document.getElementById("photos").files;
-
       // Photos existantes (après suppressions éventuelles)
       const photosExistantes = JSON.parse(document.getElementById("photosData").value || "[]");
 
       // Upload des nouvelles photos
       const nouvellesUrls = [];
-      for (const fichier of fichiers) {
+      for (const fichier of nouvellesFichiers) {
         const url = await uploadPhoto(fichier);
         nouvellesUrls.push(url);
       }
@@ -205,6 +205,7 @@ async function editer(id) {
   document.getElementById("visible").checked = c.visible;
   document.getElementById("photos").value = "";
   document.getElementById("nouvellesMiniatures").innerHTML = ""; 
+  nouvellesFichiers = [];
 
   // Photos existantes
   const photos = c.photos ?? [];
@@ -250,6 +251,7 @@ document.getElementById("modalCreation").addEventListener("show.bs.modal", e => 
     document.getElementById("photoPrincipale").value = "0";
     afficherMiniatures([], 0);
     document.getElementById("nouvellesMiniatures").innerHTML = "";
+    nouvellesFichiers = [];
     document.querySelector("#modalCreation .modal-title").textContent = "Nouvelle création";
   }
 });
@@ -395,7 +397,11 @@ function retirerPhoto(index) {
 
 // Prévisualisation des nouvelles photos avant upload
 document.getElementById("photos")?.addEventListener("change", async e => {
-  const fichiers = Array.from(e.target.files);
+  nouvellesFichiers = [...nouvellesFichiers, ...Array.from(e.target.files)];
+  await afficherNouvellesMiniatures();
+});
+
+async function afficherNouvellesMiniatures() {
   const photosExistantes = JSON.parse(document.getElementById("photosData").value || "[]");
   const offset = photosExistantes.length;
 
@@ -405,8 +411,8 @@ document.getElementById("photos")?.addEventListener("change", async e => {
 
   const principale = parseInt(document.getElementById("photoPrincipale").value || "0");
 
-  for (let i = 0; i < fichiers.length; i++) {
-    const url = await lireFichier(fichiers[i]);
+  for (let i = 0; i < nouvellesFichiers.length; i++) {
+    const url = await lireFichier(nouvellesFichiers[i]);
     const indexGlobal = offset + i;
     const div = document.createElement("div");
     div.style.position = "relative";
@@ -418,10 +424,25 @@ document.getElementById("photos")?.addEventListener("change", async e => {
                border: 3px solid ${indexGlobal === principale ? "#198754" : "#dee2e6"};"
         onclick="definirPrincipale(${indexGlobal})"
       >
+      <button
+        onclick="retirerNouvellePhoto(${i})"
+        style="position:absolute; top:-6px; right:-6px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; line-height:1;">✕</button>
     `;
     conteneur.appendChild(div);
   }
-});
+}
+
+async function retirerNouvellePhoto(index) {
+  nouvellesFichiers.splice(index, 1);
+
+  // Recalculer la photo principale
+  const photosExistantes = JSON.parse(document.getElementById("photosData").value || "[]");
+  const principale = parseInt(document.getElementById("photoPrincipale").value || "0");
+  const nouvellePrincipale = principale >= photosExistantes.length + nouvellesFichiers.length ? 0 : principale;
+  document.getElementById("photoPrincipale").value = nouvellePrincipale;
+
+  await afficherNouvellesMiniatures();
+}
 
 function lireFichier(fichier) {
   return new Promise(resolve => {
@@ -430,4 +451,3 @@ function lireFichier(fichier) {
     reader.readAsDataURL(fichier);
   });
 }
-
